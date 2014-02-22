@@ -40,11 +40,10 @@ public class MainActivity extends Activity {
 			public void onClick(View v) {
 				startTime = SystemClock.uptimeMillis();
 				p = camera.getParameters();
-				timeHandler.postDelayed(updateTimeThread, 0);
+				// call the timer thread with 0 sec delay
+				timeHandler.postDelayed(updateTimeThread, 0); 
 				cameraHandler.postDelayed(startLightThread, 5000);
-				cameraHandler.postDelayed(blinkLightThread, 10000);
-			
-
+				cameraHandler.postDelayed(TurnOffLightThread, 10000);
 			}
 		});
 
@@ -70,7 +69,8 @@ public class MainActivity extends Activity {
 			sec = sec % 60;
 			timer.setText("" + min + ":" + String.format("%02d", sec) + ":"
 					+ String.format("%02d", millisec));
-			timeHandler.postDelayed(updateTimeThread, 0);
+			// call itself with 0 millisec delay, so that times is updated with each milliseconds
+			timeHandler.postDelayed(updateTimeThread, 0); 
 		}
 	};
 
@@ -81,12 +81,12 @@ public class MainActivity extends Activity {
 			camera.setParameters(p);
 			camera.startPreview();
 			if (isBlinking) {
-				cameraHandler.postDelayed(blinkLightThread, 500);
+				cameraHandler.postDelayed(TurnOffLightThread, 500);
 			}
 		}
 	};
 
-	private Runnable blinkLightThread = new Runnable() {
+	private Runnable TurnOffLightThread = new Runnable() {
 
 		@Override
 		public void run() {
@@ -94,10 +94,10 @@ public class MainActivity extends Activity {
 			p.setFlashMode(Parameters.FLASH_MODE_OFF);
 			camera.setParameters(p);
 			camera.startPreview();
+			//call startLight and TurnOffLight recursively to create the blinking effect
 			if (isBlinking) {
 				cameraHandler.postDelayed(startLightThread, 500);
 			}
-			//cameraHandler.postDelayed(blinkLightThread, 2000);
 
 		}
 	};
